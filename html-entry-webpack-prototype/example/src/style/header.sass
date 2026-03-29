@@ -1,0 +1,29 @@
+$primary: #6366f1
+$text: #e2e8f0
+$bg-soft: #1e293b
+
+.main-header
+  display: flex
+  justify-content: space-between
+  align-items: center
+  padding: 15px 30px
+  background: $bg-soft
+  border-bottom: 1px solid rgba(255,255,255,0.05)
+
+  &__logo
+    font-size: 1.4rem
+    font-weight: bold
+    color: $primary
+
+  &__nav ul
+    display: flex
+    gap: 20px
+    list-style: none
+
+  &__nav a
+    text-decoration: none
+    color: $text
+    transition: 0.2s
+
+    &:hover
+      color: $primary

@@ -1,0 +1,77 @@
+/* 🔥 ONE-TONE DESIGN SYSTEM */
+
+:root {
+  --bg: #0f172a;          /* dark base */
+  --bg-soft: #1e293b;     /* cards */
+  --primary: #6366f1;     /* main tone */
+  --primary-soft: #818cf8;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --border: #334155;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Poppins", sans-serif;
+  line-height: 1.6;
+}
+
+/* Layout */
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px 20px;
+}
+
+/* Heading */
+h1 {
+  text-align: center;
+  margin: 30px 0;
+  color: var(--primary-soft);
+  letter-spacing: 2px;
+}
+
+/* Images
+img {
+  border-radius: 12px;
+  margin: 10px;
+  border: 1px solid var(--border);
+  transition: 0.3s;
+}
+
+img:hover {
+  transform: scale(1.05);
+  border-color: var(--primary);
+} */
+
+/* 🔥 HERO IMAGE SECTION */
+
+.hero-images {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 25px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border);
+}
+
+/* image styling (inherits tone) */
+.hero-images img {
+  height: 100px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  transition: 0.3s;
+}
+
+.hero-images img:hover {
+  transform: scale(1.08);
+  border-color: var(--primary);
+}

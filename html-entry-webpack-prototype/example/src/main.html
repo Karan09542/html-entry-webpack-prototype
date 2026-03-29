@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<link rel="stylesheet" href="./main.css" />
+		<link rel="stylesheet" href="./style/header.sass" />
+		<link rel="stylesheet" href="./style/footer.scss" />
+	</head>
+	<body>
+		<header class="main-header">
+			<div class="main-header__logo">Logo</div>
+			<nav class="main-header__nav">
+				<ul>
+					<li><a href="#">Home</a></li>
+					<li><a href="#">About</a></li>
+					<li><a href="#">Contact</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<h1>HTML AS ENTRY POINT</h1>
+		<!-- hero images -->
+		<section class="hero-images">
+			<img height="100" src="./public/images/mahadev.png" />
+			<img
+				height="100"
+				src="https://m.media-amazon.com/images/I/61N2u9Xki9L._SX522_.jpg"
+			/>
+		</section>
+
+		<main id="app">
+			<div class="gallery-app">
+				<!-- gallery will render here -->
+			</div>
+		</main>
+		
+		<footer>
+			<p>
+				Author: Bihari Ji<br />
+				<a href="mailto:bihariji@example.com">bihariji@example.com</a>
+			</p>
+		</footer>
+		<script type="module" src="./main.js"></script>
+		<script type="module" src="./three.js"></script>
+		<script type="module" src="./utils/a.js"></script>
+		<script type="module" src="./scripts/gallery.js"></script>
+	</body>
+</html>
