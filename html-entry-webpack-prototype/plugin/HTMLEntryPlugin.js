@@ -3,6 +3,9 @@ import path from "path";
 import EntryDependency from "../../lib/dependencies/EntryDependency.js";
 import * as cheerio from "cheerio";
 
+import webpack from "webpack";
+const { NormalModule } = webpack;
+
 /**
  * @typedef {object} Tag
  * @property {"head" | "body"} location - location where the tag should be placed i.e. head or body
@@ -37,7 +40,7 @@ class HTMLEntryPlugin {
 	constructor(config) {
 		this.htmlEntries = {};
 		this.virtualModulePaths = {};
-		this.depedencyTwoHTMLEntriesMap = {};
+		this.dependencyTwoHTMLEntriesMap = {};
 		this.RegEx = {
 			HTML_REGEX: /\.(html|htm)$/i,
 			SCRIPT_REGEX:
@@ -77,114 +80,26 @@ class HTMLEntryPlugin {
 	}
 
 	apply(compiler) {
-		const entries = compiler.options.entry;
-
-		const { HTML_REGEX } = this.RegEx;
-		for (let key in entries) {
-			const item = entries[key]; // entry options
-			const entry = item.import.at(-1);
-
-			if (!HTML_REGEX.test(entry)) continue;
-
-			// Read html
-			const html = fs.readFileSync(entry, "utf-8");
-
-			const $ = cheerio.loadBuffer(html);
-			const jsMatches = [];
-			const cssMatches = [];
-			const imgMatches = [];
-			$("script").each((i, elem) => {
-				const src = path.resolve(path.dirname(entry), $(elem).attr("src"));
-				jsMatches.push({ ...elem.attribs, src });
-			});
-
-			$("link[rel='stylesheet']").each((i, elem) => {
-				const href = path.resolve(path.dirname(entry), $(elem).attr("href"));
-				cssMatches.push({ ...elem.attribs, href });
-			});
-			$("img").each((i, elem) => {
-				let src = $(elem).attr("src");
-				if (
-					!src ||
-					src.startsWith("http://") ||
-					src.startsWith("https://") ||
-					src.startsWith("data:")
-				)
-					return;
-
-				src = path.resolve(path.dirname(entry), src);
-				imgMatches.push({ ...elem.attribs, src });
-			});
-
-			// add html entry i.e. script tag, etc
-			this.htmlEntries[key] = {
-				...item,
-				import: item.import
-				// js: jsMatches,
-				// css: cssMatches
-			};
-
-			delete entries[key];
-
-			const toPosix = (p) => p.split(path.sep).join("/");
-
-			const virtualModuleContents =
-				cssMatches
-					.map(({ href }) => `import "${toPosix(href)}?html-entry";`)
-					.join("\n") +
-				"\n" +
-				jsMatches.map(({ src }) => `import "${toPosix(src)}";`).join("\n") +
-				"\n" +
-				imgMatches.map(({ src }) => `import "${toPosix(src)}";`).join("\n");
-
-			const virtualPath = path.resolve(
-				path.dirname(entry),
-				`${key}-virtual-module.js`
-			);
-			//  save virtual module path for clean up
-
-			this.virtualModulePaths[key] = virtualPath;
-			fs.writeFileSync(virtualPath, virtualModuleContents, "utf-8");
-		}
+		// const entries = compiler.options.entry;
 
 		compiler.hooks.compilation.tap(
 			PLUGIN_NAME,
 			(compilation, { normalModuleFactory }) => {
-				compilation.dependencyFactories.set(
-					EntryDependency,
-					normalModuleFactory
+				NormalModule.getCompilationHooks(compilation).loader.tap(
+					HTML_PLUGIN,
+					(loaderContext, normalModule) => {
+						loaderContext.sendDataToPlugin = (data) => {
+							// const moduleId = compilation.chunkGraph.getModuleId(normalModule); // null
+							this.htmlEntries[normalModule.resource] = {
+								...data,
+								module: normalModule
+							};
+						};
+					}
 				);
 			}
 		);
 
-		compiler.hooks.make.tapAsync(HTML_PLUGIN, (compilation, cb) => {
-			const tasks = [];
-			for (let key in this.virtualModulePaths) {
-				const entry = this.virtualModulePaths[key];
-				const options = { name: key };
-				tasks.push(
-					new Promise((resolve, reject) =>
-						this.addEntry(
-							compiler.context,
-							entry,
-							options,
-							compilation,
-							resolve,
-							reject
-						)
-					)
-				);
-			}
-			Promise.all(tasks)
-				.then(() => {
-					cb();
-				})
-				.catch((err) => {
-					cb(err);
-				});
-		});
-
-		// Process assets : Final output for html as entry
 		compiler.hooks.thisCompilation.tap(HTML_PLUGIN, (compilation) => {
 			const { RawSource } = compiler.webpack.sources;
 			compilation.hooks.processAssets.tap(
@@ -194,8 +109,13 @@ class HTMLEntryPlugin {
 				},
 				(assets) => {
 					for (const [name, entrypoint] of compilation.entrypoints) {
-						const item = this.htmlEntries[name]; // entry
-						if (!item) continue;
+						const modules = entrypoint.getEntrypointChunk().getModules();
+						const htmlModule = modules.find((m) =>
+							m.resource.endsWith(".html")
+						);
+						if (!htmlModule) continue;
+						const htmlEntry = this.htmlEntries[htmlModule.resource]; // entry
+						if (!htmlEntry) continue;
 
 						const files = entrypoint.getFiles();
 						const allAssets = compilation.getAssets();
@@ -213,14 +133,18 @@ class HTMLEntryPlugin {
 							}
 						}
 
-						const htmlFile = fs.readFileSync(item.import.at(-1), "utf-8");
-						const $ = cheerio.loadBuffer(htmlFile);
+						const htmlFile = htmlEntry.source;
+						const $ = cheerio.load(htmlFile);
 
 						if (jsFiles.length) {
 							const scripts = jsFiles
 								.map((f) => `<script type="module" src="${f}"></script>`)
 								.join("");
-							$("script").remove();
+							$("script").each((_, el) => {
+								if (this.isValidSource($(el).attr("src"))) {
+									$(el).remove();
+								}
+							});
 
 							// Add scripts to html
 							const { location, position } = this.config.script;
@@ -239,7 +163,11 @@ class HTMLEntryPlugin {
 							const links = cssFiles
 								.map((f) => `<link rel="stylesheet" href="${f}">`)
 								.join("");
-							$("link[rel=stylesheet]").remove();
+							$("link[rel=stylesheet]").each((_, el) => {
+								if (this.isValidSource($(el).attr("href"))) {
+									$(el).remove();
+								}
+							});
 
 							// Add css to html
 							const { position } = this.config.link;
@@ -255,13 +183,7 @@ class HTMLEntryPlugin {
 									.attr("src")
 									.replace(/^(\.\/)/, ""); // may start with `./` but imageFiles name always start with root directory i.e z/src/public/mahadev.png
 
-								if (
-									!src ||
-									src.startsWith("http://") ||
-									src.startsWith("https://") ||
-									src.startsWith("data:")
-								)
-									return;
+								if (!this.isValidSource(src)) return;
 								const path = imgSources.find((p) => p.endsWith(src));
 								if (path) {
 									$(ele).attr("src", imgFiles[path].name);
@@ -321,5 +243,17 @@ class HTMLEntryPlugin {
 		process.on("SIGINT", clean);
 		process.on("SIGTERM", clean);
 	};
+
+	isValidSource(src) {
+		if (
+			!src ||
+			src.startsWith("http://") ||
+			src.startsWith("https://") ||
+			src.startsWith("data:")
+		) {
+			return false;
+		}
+		return true;
+	}
 }
 export default HTMLEntryPlugin;

@@ -35,8 +35,25 @@ export default {
 	// 		chunks: "all"
 	// 	}
 	// },
+	resolveLoader: {
+		alias: {
+			"html-entry-loader": path.join(
+				__dirname,
+				"../loader/html-entry-loader.js"
+			)
+		}
+	},
 	module: {
 		rules: [
+			{
+				test: /\.html$/,
+				type: "javascript/auto",
+				use: [
+					{
+						loader: "html-entry-loader"
+					}
+				]
+			},
 			{
 				test: /\.s?[ca]ss$/,
 				oneOf: [

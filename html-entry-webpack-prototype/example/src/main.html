@@ -7,6 +7,25 @@
 		<link rel="stylesheet" href="./main.css" />
 		<link rel="stylesheet" href="./style/header.sass" />
 		<link rel="stylesheet" href="./style/footer.scss" />
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"
+			integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ=="
+			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
+		></script>
+		<script src="https://cdn.tailwindcss.com"></script>
+
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+			crossorigin="anonymous"
+		/>
+		<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+			crossorigin="anonymous"
+		></script>
 	</head>
 	<body>
 		<header class="main-header">
@@ -20,7 +39,8 @@
 			</nav>
 		</header>
 
-		<h1>HTML AS ENTRY POINT</h1>
+		<h1 class="tracking-widest text-5xl">HTML AS ENTRY POINT</h1>
+		<button type="button" class="btn btn-primary">Primary</button>
 		<!-- hero images -->
 		<section class="hero-images">
 			<img height="100" src="./public/images/mahadev.png" />
@@ -30,18 +50,27 @@
 			/>
 		</section>
 
+		<iframe
+			id="iframe"
+			class="border p-4 mt-2 mx-auto rounded w-3/4 aspect-square [scrollbar-width:thin]"
+			src="./main.html?show=true"
+		></iframe>
+
 		<main id="app">
 			<div class="gallery-app">
 				<!-- gallery will render here -->
 			</div>
 		</main>
-		
+
 		<footer>
 			<p>
 				Author: Bihari Ji<br />
 				<a href="mailto:bihariji@example.com">bihariji@example.com</a>
 			</p>
 		</footer>
+		<script>
+			console.log(_.shuffle([1, 2, 3, 4, 5]));
+		</script>
 		<script type="module" src="./main.js"></script>
 		<script type="module" src="./three.js"></script>
 		<script type="module" src="./utils/a.js"></script>

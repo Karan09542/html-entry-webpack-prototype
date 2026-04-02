@@ -1,25 +1,49 @@
 # Webpack Entry Points as HTML (Prototype)
 
-## My example implementation is inside directory
+## Current Implementation (Updated Architecture)
+
+The initial prototype described below is based on a virtual module approach.
+The current implementation has been improved to use a loader + plugin architecture for better integration with Webpack’s module graph.
+
+---
+
 ```
-html-entry-webpack-prototype/  
-  ├── example 
-  │   ├── src  
+HTML
+ ↓ (html-entry-loader)
+Converted to JS imports
+ ↓
+Webpack Module Graph
+ ↓
+Plugin (HTML reconstruction + asset injection)
+ ↓
+Final HTML output
+
+```
+
+## 📍My example implementation is inside directory
+
+```
+html-entry-webpack-prototype/
+  ├── example
+  │   ├── src
   │   │   ├── main.html
   │   │   ├── main.css
   │   │   └── main.js
-  │   └── webpack.config.js 
-  └── plugin  
+  │   └── webpack.config.js
+  └── plugin
         └── HTMLEntryPlugin.js
 ```
 
 ## Run
+
 Run in root level where webpack is
+
 ```bash
 npm run build:example
 ```
 
 ### 👉 **Here is the Full Explaintion How i approached the problem**
+
 ---
 
 While exploring Webpack internals for GSoC 2026, I wanted to understand how entry points actually work beyond the usual configuration.
@@ -70,7 +94,7 @@ After understanding this, I realized:
 
 **If Webpack can treat JavaScript as an entry via dependencies, then HTML can also be transformed into dependencies.**
 
-## Solution Approach
+## Prototype Approach (Virtual Module Based)
 
 I implemented a plugin: **`HTMLEntryPlugin`**
 
@@ -192,18 +216,26 @@ This is a prototype and does not yet handle:
 - Dev server / HMR support
 - Full HTML spec coverage
 
+## Improvements Over Prototype
+
+The current implementation improves upon the prototype by:
+
+- Moving HTML parsing into a custom loader
+- Eliminating filesystem-based virtual modules
+- Integrating HTML directly into Webpack’s module graph
+- Using module-based mapping instead of filename-based mapping
+
 ## Future Vision
 
 The long-term goal is:
 
-> Native support for HTML as an entry point in Webpack core
+> This prototype demonstrates a pathway toward supporting HTML as an optional entry type within Webpack’s existing architecture.
 
 If implemented in core:
 
 - No need for extra plugin
 - HTML becomes a first-class entry
 - intuitive developer experience
-
 
 ## Conclusion
 
