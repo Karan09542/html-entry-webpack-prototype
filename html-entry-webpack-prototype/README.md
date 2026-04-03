@@ -234,7 +234,7 @@ The long-term goal is:
 If implemented in core:
 
 - No need for extra plugin
-- HTML becomes a first-class entry
+- HTML becomes a supported entry type alongside JavaScript
 - intuitive developer experience
 
 ## Conclusion
